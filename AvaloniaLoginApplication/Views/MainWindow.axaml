@@ -10,20 +10,24 @@
         Title="AvaloniaLoginApplication">
 
     <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:MainViewModel />
     </Design.DataContext>
     
-    <StackPanel>
-        <TextBlock Text="{Binding Saluto}"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center" />
-        <TextBox PlaceholderText="Nome..." 
-                 Text="{Binding TxtNome, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                 IsEnabled="{Binding IsTxtEnabled}"/>
-        <Button Content="{Binding BtnLog}" Command="{Binding BtnLogClickCommand}"></Button>
+    <StackPanel Spacing="10" Margin="20">
+        
+        <TextBlock Text="{Binding Saluto}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <TextBox PlaceholderText="Password..." Text="{Binding TxtPassword, Mode=TwoWay}"
+                 IsEnabled="{Binding IsTxtEnabled}" PasswordChar="§" RevealPassword="False"/>
+        <Button Content="{Binding BtnLog}" IsEnabled="{Binding IsBtnEnabled}" Command="{Binding BtnLogClickCommand}"></Button>
         <TextBlock Text="{Binding Avviso}"></TextBlock>
+        
+        <ListBox ItemsSource="{Binding Utenti}" SelectedItem="{Binding SelectedUtente, Mode=TwoWay}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Nome}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        
     </StackPanel>
-
 </Window>

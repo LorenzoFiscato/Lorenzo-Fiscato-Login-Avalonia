@@ -1,3 +1,5 @@
+using System.Collections.ObjectModel;
+using AvaloniaLoginApplication.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -5,49 +7,79 @@ namespace AvaloniaLoginApplication.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-    [ObservableProperty] private string _saluto = "Benvenuto. Scrivi il nome per effetuare il login";
+    [ObservableProperty] private string _saluto = "Benvenuto. Seleziona un utente dalla lista per effetuare il login";
     [ObservableProperty] private string _btnLog = "LOGIN";
-    [ObservableProperty] private string? _txtNome;
+    [ObservableProperty] private string? _txtPassword;
     [ObservableProperty] private string _avviso = "";
-    [ObservableProperty] private bool _isTxtEnabled = true;
+    [ObservableProperty] private bool _isTxtEnabled;
+    [ObservableProperty] private bool _isBtnEnabled;
+    [ObservableProperty] private Utente? _selectedUtente;
     
-    private string _nomeUtente = "";
+    
+
+    public ObservableCollection<Utente> Utenti { get; set; } = new ObservableCollection<Utente>
+    {
+        new Utente { Nome = "Mario", Password = "Password123" },
+        new Utente { Nome = "Luigi", Password = "Segreta45" },
+        new Utente { Nome = "Anna", Password = "MiaPassword!" }
+    };
+    
     private bool _hasLogged;
-    
+
+
+    partial void OnSelectedUtenteChanged(Utente? value)
+    {
+        if (value != null) AggiornaUi((Utente)value);
+    }
+
     [RelayCommand]
     private void BtnLogClick()
     {
         Avviso = "";
         
-        if(_hasLogged)
+        if (_hasLogged)
         {
-            ChangeBools(false, true);
-            ChangeText("Arrivederci. Scrivi il nome per effetuare il login", "LOGIN");
-            return;
-        }
-        
-        if (string.IsNullOrEmpty(TxtNome))
-        {
-            Avviso = "Inserisci un nome valido";
+            AggiornaForm($"Arrivederci {SelectedUtente?.Nome}. Logout effettuato con successo", false, "", true, "LOGIN");
             return;
         }
 
-        _nomeUtente = TxtNome;
+        if(TxtPassword != SelectedUtente?.Password)
+        {
+            Avviso = "Password errata. Riprova";
+            return;
+        }
+
+        if (TxtPassword == null)
+        {
+            Avviso = "Inserisci la password";
+            return;
+        }
         
-        ChangeBools(true, false);
-        ChangeText($"Benvenuto {_nomeUtente}", "LOGOUT");
-        TxtNome = null;
+        AggiornaForm($"Benvenuto {SelectedUtente?.Nome}. Login effettuato con successo", true, "", false, "LOGOUT");
+
+        
+        
+        
+        
+    }
+    
+    private void AggiornaUi(Utente utente)
+    {
+        SelectedUtente = utente;
+        Saluto = $"Benvenuto {utente.Nome}. Inserisci la password per effettuare il login";
+        IsTxtEnabled = true;
+        IsBtnEnabled = true;
+        BtnLog = "LOGIN";
+
     }
 
-    private void ChangeText(string saluto, string btnLog)
+    private void AggiornaForm(string saluto, bool hasLogged, string txtPassword, bool isTxtEnabled, string btnLog, string avviso = "")
     {
         Saluto = saluto;
-        BtnLog =  btnLog;
-    }
-
-    private void ChangeBools(bool hasLogged, bool isTxtEnabled)
-    {
         _hasLogged = hasLogged;
+        TxtPassword = txtPassword;
         IsTxtEnabled = isTxtEnabled;
+        BtnLog = btnLog;
+        Avviso = avviso;
     }
 }
